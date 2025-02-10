@@ -13,7 +13,7 @@ def lambda_handler(event, context):
     total_height = 0
     valid_heights_count = 0
 
-    for url in event:  # event is now a list of URLs
+    for url in event:  # event is a list of URLS
         try:
             response = requests.get(url)
             response.raise_for_status()
