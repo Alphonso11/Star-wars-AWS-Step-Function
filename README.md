@@ -51,3 +51,24 @@ An example output from the `GenerateCode` state:
   "residents_mod": 7,
   "first_letter": "T"
 }
+```
+## Add a request import layer to lambda function
+
+1. Creatge a folder to hold the library:
+
+```bash
+mkdir python
+```
+2. Install the request library into the folder:
+
+```bash
+pip install requests -t python/
+```
+3. Zip the python folder:
+
+```bash
+zip -r requests-layer.zip python/
+```
+
+
+
