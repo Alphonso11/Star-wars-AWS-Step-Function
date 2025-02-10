@@ -1,0 +1,119 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "GetFilm",
+  "States": {
+    "GetFilm": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "",  # Enter your function ARN here 
+        "Payload.$": "$"
+      },
+      "ResultPath": "$.filmData",
+      "Next": "AverageHeight"
+    },
+    "AverageHeight": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "", # Enter your function ARN here 
+        "Payload.$": "$.filmData.Payload.character_urls"
+      },
+      "ResultPath": "$.averageHeight",
+      "Next": "PlanetCount"
+    },
+    "PlanetCount": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "", # Enter your function ARN here 
+        "Payload": {}
+      },
+      "ResultPath": "$.planetCount",
+      "Next": "SelectPlanet"
+    },
+    "SelectPlanet": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "", # Enter your function ARN here 
+        "Payload": {
+          "avg_height.$": "$.averageHeight.Payload.average_height",
+          "num_planets.$": "$.planetCount.Payload.num_planets"
+        }
+      },
+      "ResultPath": "$.selectedPlanet",
+      "Next": "Parallel"
+    },
+    "Parallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "CountResident",
+          "States": {
+            "CountResident": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "", # Enter your function ARN here 
+                "Payload": {
+                  "planet_id.$": "$.selectedPlanet.Payload.planet_id"
+                }
+              },
+              "ResultPath": "$.residentOutput",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "GetPlanetName",
+          "States": {
+            "GetPlanetName": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "", # Enter your function ARN here 
+                "Payload": {
+                  "planet_id.$": "$.selectedPlanet.Payload.planet_id"
+                }
+              },
+              "ResultPath": "$.nameOutput",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.parallelOutput",
+      "Next": "MergeParallelOutputs"
+    },
+    "MergeParallelOutputs": {
+      "Type": "Pass",
+      "Parameters": {
+        "filmData.$": "$.filmData",
+        "averageHeight.$": "$.averageHeight",
+        "planetCount.$": "$.planetCount",
+        "selectedPlanet.$": "$.selectedPlanet",
+        "residentCount.$": "$.parallelOutput[0].residentOutput.Payload.residents_mod",
+        "planetName.$": "$.parallelOutput[1].nameOutput.Payload.first_letter"
+      },
+      "ResultPath": "$.mergedOutput",
+      "Next": "GenerateCode"
+    },
+    "GenerateCode": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "", # Enter your function ARN here 
+        "Payload": {
+          "film_title.$": "$.mergedOutput.filmData.Payload.film_title",
+          "average_height.$": "$.mergedOutput.averageHeight.Payload.average_height",
+          "num_planets.$": "$.mergedOutput.planetCount.Payload.num_planets",
+          "planet_id.$": "$.mergedOutput.selectedPlanet.Payload.planet_id",
+          "residents_mod.$": "$.mergedOutput.residentCount",
+          "first_letter.$": "$.mergedOutput.planetName"
+        }
+      },
+      "End": true
+    }
+  }
+}
