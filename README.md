@@ -24,7 +24,7 @@ Below is the visual representation of the workflow:
 
 ## State Machine JSON Definition
 
-The JSON definition of the Step Function is provided in [`StarWars.asl.json`](StarWars.asl.json). This file defines all states, transitions, and Lambda integrations used in the workflow.
+The JSON definition of the Step Function is provided in [`StarWars.asl.json`](Starwars.asl.json). This file defines all states, transitions, and Lambda integrations used in the workflow.
 
 ## AWS Lambda Functions
 
