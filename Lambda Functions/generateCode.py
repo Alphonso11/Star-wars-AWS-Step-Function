@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         if None in [film_title, average_height, num_planets, planet_id, residents_mod, first_letter]:
             raise ValueError("Missing required data in the event payload.")
 
-        # First character: Map film_title to a letter (e.g., first letter of the film title)
+        # First character: Corresponding character to episode_id of movie
         first_char = chr(64 + film_title)
 
         # Second character: Use residents_mod (already calculated in previous steps)
